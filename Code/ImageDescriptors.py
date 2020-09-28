@@ -106,9 +106,11 @@ class Descriptors:
                         feature vector that represents the texture description
                         of the provided image.
         """
+        # convert image to grayscale
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # use num_points and radius to calculate LBP representation of the image
-        lbp = feature.local_binary_pattern(image, num_points, radius, method="uniform")
+        lbp = feature.local_binary_pattern(img, num_points, radius, method="uniform")
 
         # use lbp representation of the image to create a histogram
         (hist, _) = np.histogram( lbp.ravel(),
@@ -120,6 +122,58 @@ class Descriptors:
         hist /= (hist.sum() + eps)
 
         # return the hsitogram of local binary patterns for the image
+        return hist
+
+
+    def shape_descriptor(self, image, ksize=17, border=True):
+        """
+        Shape descriptor uses image moments to represent the different shapes with in
+        the image. Image moments are weighted averages of pixel intensitites.
+
+        1. convert image to grayscale.
+        2. calculate magnitude by using verticle and horizontal Sobel edge detectors.
+        3. add a border to the image incase shapes go to the image edge
+        4. use HuMoments to calculate the 7 Hu invariants which are saved as the image vector
+
+        ----------
+        Parameters
+        ----------
+        image   :   ndarray that represents the image
+        ksize   :   int, kernal size for edge detector, must be odd between 1-31, 
+                    default is 17
+        border  :   Boolean, when True add a white 15 pixel border, if False don't
+                    add any border. Default is True
+
+        Return  :   list of floating point numbers that is an n-dimensional 
+                    feature vector that represents the shape description of
+                    the provided image.
+        """
+
+        # convert image to grayscale
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # create edge detectors
+        gx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=ksize)
+        gy = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=ksize)
+
+        # calculate the magnitude and angle of the image
+        # we only need the magnitude so we will disregard the angle
+        mag, _ cv2.cartToPolar(gx, gy)
+
+        # add a white border to the image
+        if border:
+            img = cv2.copyMakeBorder(
+                mag, 15, 15, 15, 15, 
+                cv2.BORDER_CONSTANT, 
+                value=255 
+            )
+
+        # create histogram using HuMoments to calculate the 7 Hu invariants
+        hist = cv2.HuMoments(cv2.moments(img)).flatten()
+        hist = np.log(hist)
+        hist = np.nan_to_num(hist)
+
+        # return histogram of the 7 Hu invariants representing the image shape descriptor
         return hist
 
 
