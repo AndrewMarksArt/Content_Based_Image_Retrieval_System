@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from skimage import feature
 
 
 class Descriptors:
@@ -80,6 +81,46 @@ class Descriptors:
 
         # return the feature vector
         return features
+
+
+    def texture_descriptor(self, image, num_points=36, radius=12, eps=1e-7):
+        """
+        Texture descriptor computes the Local Binary Pattern (LBP) representation
+        of the image provided, and then uses the LBP representation to build the
+        image histogram and feature vector.
+
+        1. convert the image to grayscale.
+        2. set a circularly symmetric neighborhood of size num_points and radius.
+        3. LBP value is calculated for the center pixel of the neighborhood.
+        4. use LBP values to calculate the image feature histogram.
+
+        ----------
+        Parameters
+        ----------
+        image       :   ndarray representation of provided image.
+        num_points  :   int, number of points for the circular neighborhood.
+        radius      :   int, radius of the neighborhood.
+        eps         :   float, very small, used to avoid divide by 0 errors.
+
+        return      :   list of floating point numbers that is an n-dimensional 
+                        feature vector that represents the texture description
+                        of the provided image.
+        """
+
+        # use num_points and radius to calculate LBP representation of the image
+        lbp = feature.local_binary_pattern(image, num_points, radius, method="uniform")
+
+        # use lbp representation of the image to create a histogram
+        (hist, _) = np.histogram( lbp.ravel(),
+                                  bins = np.arange(0, num_points +3),
+                                  range = (0, num_points + 2) )
+
+        # normalize the histogram
+        hist = hist.astype("float")
+        hist /= (hist.sum() + eps)
+
+        # return the hsitogram of local binary patterns for the image
+        return hist
 
 
     def histogram(self, image, mask, bins):
