@@ -87,7 +87,7 @@ class Similarity:
         # return the results limited by limit parameter
         return results[1:limit]
 
-    
+
     def chi2_distance(self, histA, histB, eps=1e-7):
         """
         Calculates the chi-squared distance between two histograms.
@@ -113,6 +113,3 @@ class Similarity:
 
         # return the chi-squared distance between the 2 histograms
         return dist
-
-
-

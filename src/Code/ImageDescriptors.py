@@ -158,14 +158,14 @@ class Descriptors:
 
         # calculate the magnitude and angle of the image
         # we only need the magnitude so we will disregard the angle
-        mag, _ cv2.cartToPolar(gx, gy)
+        mag, _ = cv2.cartToPolar(gx, gy)
 
         # add a white border to the image
         if border:
             img = cv2.copyMakeBorder(
                 mag, 15, 15, 15, 15, 
                 cv2.BORDER_CONSTANT, 
-                value=255 
+                value=255
             )
 
         # create histogram using HuMoments to calculate the 7 Hu invariants
@@ -202,11 +202,3 @@ class Descriptors:
 
         # return the histogram
         return hist
-
-
-        
-
-
-
-
-

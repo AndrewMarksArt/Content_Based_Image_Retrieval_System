@@ -11,7 +11,7 @@ class SearchUtils:
 
         If make_id = True, change .png file names to match company ID style
             e.g. change '1980.001.png' to 'a1980_001'
-        
+       
         -----------
         Parameters:
         -----------
@@ -39,5 +39,3 @@ class SearchUtils:
 
         # return list of image file names or image IDs
         return image_names
-
-
